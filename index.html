@@ -1,0 +1,2064 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AIDD Knowledge Copilot</title>
+  <style>
+    :root {
+      --bg: #eef3f7;
+      --ink: #101828;
+      --muted: #667085;
+      --subtle: #98a2b3;
+      --panel: rgba(255, 255, 255, 0.88);
+      --panel-strong: #ffffff;
+      --line: rgba(21, 33, 52, 0.12);
+      --nav: #14213d;
+      --nav-2: #1f3a5f;
+      --teal: #0e8f91;
+      --cyan: #36b7c9;
+      --coral: #d85f45;
+      --green: #138a52;
+      --amber: #b7791f;
+      --blue-soft: #e8f4fb;
+      --teal-soft: #e7f6f3;
+      --coral-soft: #fff0eb;
+      --shadow: 0 20px 60px rgba(17, 24, 39, 0.14);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(135deg, rgba(14, 143, 145, 0.16), transparent 34%),
+        linear-gradient(225deg, rgba(216, 95, 69, 0.11), transparent 36%),
+        var(--bg);
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 292px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      min-height: 100vh;
+      padding: 22px 18px;
+      color: #eef7ff;
+      background:
+        linear-gradient(180deg, rgba(54, 183, 201, 0.15), transparent 34%),
+        linear-gradient(160deg, var(--nav), var(--nav-2));
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: 12px 0 36px rgba(20, 33, 61, 0.18);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 3px 3px 12px;
+    }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius);
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #36b7c9, #d85f45);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.24);
+      font-weight: 800;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 18px;
+      line-height: 1.24;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .sidebar .sub {
+      color: rgba(238, 247, 255, 0.68);
+    }
+
+    .nav-card {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+
+    .side-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      color: rgba(238, 247, 255, 0.72);
+      font-size: 12px;
+    }
+
+    .topic-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .topic {
+      width: 100%;
+      min-height: 42px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 11px;
+      border-radius: var(--radius);
+      color: rgba(255, 255, 255, 0.82);
+      background: rgba(255, 255, 255, 0.07);
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .topic:hover,
+    .topic.active {
+      color: #ffffff;
+      background: rgba(54, 183, 201, 0.22);
+    }
+
+    .count {
+      min-width: 28px;
+      height: 23px;
+      display: inline-grid;
+      place-items: center;
+      padding: 0 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.13);
+      font-size: 12px;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn {
+      min-height: 40px;
+      border-radius: var(--radius);
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      border-color: rgba(14, 143, 145, 0.45);
+      color: var(--teal);
+    }
+
+    .btn.primary {
+      border-color: transparent;
+      color: #fff;
+      background: linear-gradient(135deg, var(--teal), #156f9a);
+      box-shadow: 0 12px 24px rgba(14, 143, 145, 0.22);
+    }
+
+    .btn.ghost {
+      color: #eaf6ff;
+      border-color: rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .main {
+      height: 100vh;
+      min-width: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+    }
+
+    .topbar {
+      padding: 22px 28px 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(247, 250, 252, 0.86);
+      backdrop-filter: blur(14px);
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) minmax(280px, 560px);
+      gap: 18px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--green);
+      box-shadow: 0 0 0 5px rgba(19, 138, 82, 0.12);
+    }
+
+    .topbar h2 {
+      font-size: 27px;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    .search-box {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .search-box input {
+      width: 100%;
+      height: 46px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 0 14px;
+      outline: none;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 10px 24px rgba(17, 24, 39, 0.05);
+    }
+
+    .search-box input:focus,
+    textarea:focus,
+    label input:focus,
+    label textarea:focus,
+    label select:focus {
+      border-color: rgba(14, 143, 145, 0.62);
+      box-shadow: 0 0 0 4px rgba(14, 143, 145, 0.12);
+    }
+
+    .workspace {
+      min-height: 0;
+      overflow: auto;
+      padding: 22px 28px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 330px;
+      gap: 18px;
+    }
+
+    .hero-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      background: var(--panel);
+      box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+    }
+
+    .metric strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 22px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .chat-card,
+    .research-card,
+    .source-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .chat-card {
+      min-height: 580px;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .card-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(16, 24, 40, 0.06);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .tab.active,
+    .tab:hover {
+      color: var(--teal);
+      background: var(--teal-soft);
+    }
+
+    .chat {
+      min-height: 0;
+      overflow: auto;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .msg {
+      max-width: min(780px, 92%);
+      border-radius: var(--radius);
+      padding: 14px 15px;
+      line-height: 1.7;
+      box-shadow: 0 10px 24px rgba(17, 24, 39, 0.07);
+    }
+
+    .msg.bot {
+      align-self: flex-start;
+      border: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      color: #ffffff;
+      background: linear-gradient(135deg, #156f9a, var(--teal));
+    }
+
+    .msg strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 15px;
+    }
+
+    .answer-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .source-line {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(102, 112, 133, 0.18);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #176b87;
+      border-radius: 999px;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .chip:hover {
+      border-color: rgba(14, 143, 145, 0.45);
+      background: var(--teal-soft);
+    }
+
+    .composer {
+      padding: 16px 28px 22px;
+      border-top: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.9);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 50px;
+      max-height: 150px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      outline: none;
+      color: var(--ink);
+      background: #ffffff;
+    }
+
+    .right-rail {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .research-card,
+    .source-card {
+      padding: 16px;
+      box-shadow: 0 12px 32px rgba(17, 24, 39, 0.08);
+    }
+
+    .rail-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .rail-title h3 {
+      font-size: 15px;
+    }
+
+    .article-list,
+    .knowledge-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .article,
+    .knowledge-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 11px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .article a {
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .article a:hover {
+      color: var(--teal);
+    }
+
+    .tag-row {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: 4px 7px;
+      background: var(--blue-soft);
+      color: #156f9a;
+      font-size: 11px;
+    }
+
+    .tag.warn {
+      color: var(--amber);
+      background: #fff7e6;
+    }
+
+    .tag.hot {
+      color: var(--coral);
+      background: var(--coral-soft);
+    }
+
+    .knowledge-item {
+      cursor: pointer;
+    }
+
+    .knowledge-item:hover {
+      border-color: rgba(14, 143, 145, 0.45);
+      background: #fff;
+    }
+
+    .knowledge-item strong {
+      display: block;
+      margin-bottom: 4px;
+      line-height: 1.4;
+    }
+
+    .knowledge-item span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(15, 23, 42, 0.48);
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: min(780px, 100%);
+      max-height: 92vh;
+      overflow: auto;
+      padding: 20px;
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    label input,
+    label textarea,
+    label select {
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px 11px;
+      outline: none;
+      background: #fff;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .empty {
+      color: rgba(238, 247, 255, 0.7);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 1120px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .right-rail {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        min-height: auto;
+      }
+
+      .main {
+        height: auto;
+      }
+
+      .topbar,
+      .workspace,
+      .composer {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-strip,
+      .right-rail {
+        grid-template-columns: 1fr;
+      }
+
+      .chat-card {
+        min-height: 540px;
+      }
+    }
+
+    /* Minimal ChatGPT-like shell */
+    body {
+      background: #ffffff;
+    }
+
+    .app {
+      display: block;
+      min-height: 100vh;
+      background: #ffffff;
+    }
+
+    .main {
+      height: 100vh;
+      max-width: 100%;
+      grid-template-rows: 64px minmax(0, 1fr) auto;
+      background: #ffffff;
+    }
+
+    .topbar {
+      padding: 0 18px;
+      border-bottom: 1px solid #eceff3;
+      background: rgba(255, 255, 255, 0.92);
+      display: grid;
+      grid-template-columns: 44px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      backdrop-filter: blur(12px);
+    }
+
+    .title-lockup {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title-lockup .logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      box-shadow: none;
+      font-size: 12px;
+      background: #111827;
+      color: #ffffff;
+    }
+
+    .title-lockup h1 {
+      font-size: 15px;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .title-lockup .sub {
+      margin-top: 2px;
+      font-size: 12px;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      color: #344054;
+      background: transparent;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+    }
+
+    .icon-btn:hover {
+      border-color: #e4e7ec;
+      background: #f7f8fa;
+    }
+
+    .tabs {
+      padding: 3px;
+      border-radius: 10px;
+      background: #f2f4f7;
+      flex-wrap: nowrap;
+    }
+
+    .tab {
+      min-height: 30px;
+      border-radius: 8px;
+      padding: 5px 11px;
+      background: transparent;
+      color: #667085;
+      font-size: 13px;
+    }
+
+    .tab.active,
+    .tab:hover {
+      color: #101828;
+      background: #ffffff;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08);
+    }
+
+    .workspace {
+      max-width: 860px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 18px;
+      display: block;
+      overflow: hidden;
+    }
+
+    .chat-card {
+      min-height: 0;
+      height: 100%;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      display: block;
+    }
+
+    .chat {
+      height: 100%;
+      padding: 30px 0 24px;
+      gap: 20px;
+      overflow: auto;
+    }
+
+    .msg {
+      max-width: 100%;
+      padding: 0;
+      border-radius: 0;
+      box-shadow: none;
+      line-height: 1.78;
+      font-size: 15px;
+    }
+
+    .msg.bot {
+      width: 100%;
+      border: 0;
+      background: transparent;
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      max-width: min(620px, 86%);
+      padding: 10px 14px;
+      border-radius: 18px;
+      color: #101828;
+      background: #f2f4f7;
+    }
+
+    .msg strong {
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .answer-grid {
+      max-width: 760px;
+    }
+
+    .source-line {
+      color: #667085;
+      border-top-color: #eef0f3;
+    }
+
+    .suggestions {
+      margin-top: 14px;
+      gap: 8px;
+    }
+
+    .chip {
+      border-color: #e4e7ec;
+      color: #344054;
+      background: #ffffff;
+    }
+
+    .chip:hover {
+      color: #101828;
+      border-color: #cfd4dc;
+      background: #f9fafb;
+    }
+
+    .composer {
+      width: min(860px, 100%);
+      margin: 0 auto;
+      padding: 12px 18px 20px;
+      border-top: 0;
+      background: #ffffff;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 42px;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .composer textarea {
+      min-height: 52px;
+      max-height: 160px;
+      border-radius: 18px;
+      padding: 14px 16px;
+      border-color: #d0d5dd;
+      background: #ffffff;
+      box-shadow: 0 10px 30px rgba(16, 24, 40, 0.08);
+    }
+
+    .send-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      color: #ffffff;
+      background: #111827;
+      cursor: pointer;
+      font-size: 21px;
+      line-height: 1;
+      display: grid;
+      place-items: center;
+    }
+
+    .send-btn:hover {
+      background: #344054;
+    }
+
+    .library-drawer {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 30;
+      width: min(380px, 92vw);
+      padding: 16px;
+      overflow: auto;
+      background: #ffffff;
+      border-right: 1px solid #e4e7ec;
+      box-shadow: 18px 0 60px rgba(16, 24, 40, 0.18);
+      transform: translateX(-105%);
+      transition: transform 180ms ease;
+    }
+
+    body.drawer-open .library-drawer {
+      transform: translateX(0);
+    }
+
+    .drawer-scrim {
+      position: fixed;
+      inset: 0;
+      z-index: 25;
+      display: none;
+      background: rgba(16, 24, 40, 0.32);
+      cursor: pointer;
+    }
+
+    body.drawer-open .drawer-scrim {
+      display: block;
+    }
+
+    .drawer-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #eef0f3;
+      margin-bottom: 14px;
+    }
+
+    .drawer-head h2 {
+      font-size: 18px;
+    }
+
+    .drawer-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .metric,
+    .nav-card,
+    .research-card,
+    .source-card {
+      border: 1px solid #e4e7ec;
+      background: #ffffff;
+      box-shadow: none;
+    }
+
+    .metric {
+      padding: 10px;
+    }
+
+    .metric strong {
+      font-size: 18px;
+    }
+
+    .nav-card,
+    .research-card,
+    .source-card {
+      margin-bottom: 12px;
+      padding: 12px;
+    }
+
+    .side-title {
+      color: #667085;
+    }
+
+    .topic {
+      color: #344054;
+      border: 1px solid #eef0f3;
+      background: #ffffff;
+    }
+
+    .topic:hover,
+    .topic.active {
+      color: #101828;
+      background: #f6f8fa;
+      border-color: #d0d5dd;
+    }
+
+    .count {
+      color: #667085;
+      background: #f2f4f7;
+    }
+
+    .btn {
+      border-color: #d0d5dd;
+      box-shadow: none;
+    }
+
+    .btn.primary {
+      background: #111827;
+      color: #ffffff;
+      box-shadow: none;
+    }
+
+    .search-box {
+      grid-template-columns: 1fr auto;
+    }
+
+    .search-box input {
+      height: 40px;
+      box-shadow: none;
+    }
+
+    .article-list,
+    .knowledge-list {
+      max-height: 360px;
+      overflow: auto;
+    }
+
+    .article,
+    .knowledge-item {
+      background: #ffffff;
+    }
+
+    @media (max-width: 720px) {
+      .topbar {
+        grid-template-columns: 40px 1fr;
+      }
+
+      .topbar .tabs {
+        grid-column: 1 / -1;
+        justify-self: stretch;
+      }
+
+      .main {
+        grid-template-rows: 104px minmax(0, 1fr) auto;
+      }
+
+      .title-lockup .sub {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-btn" id="drawerBtn" type="button" title="打开资料库">☰</button>
+        <div class="title-lockup">
+          <div class="logo">AI</div>
+          <div>
+            <h1>AIDD Knowledge Copilot</h1>
+            <p class="sub">本地知识库 · 中间直接问答</p>
+          </div>
+        </div>
+        <div class="tabs" id="modeTabs">
+          <button class="tab active" data-mode="answer">问答</button>
+          <button class="tab" data-mode="learn">学习路线</button>
+          <button class="tab" data-mode="risk">风险检查</button>
+        </div>
+      </header>
+
+      <section class="workspace">
+        <section class="chat-card">
+          <div class="chat" id="chat"></div>
+        </section>
+      </section>
+
+      <form class="composer" id="chatForm">
+        <textarea id="questionInput" placeholder="输入你的 AIDD 问题..." required></textarea>
+        <button class="send-btn" type="submit" title="发送">↑</button>
+      </form>
+    </main>
+  </div>
+
+  <button class="drawer-scrim" id="drawerScrim" type="button" aria-label="关闭资料库"></button>
+  <aside class="library-drawer" id="libraryDrawer" aria-label="资料库">
+    <div class="drawer-head">
+      <div>
+        <h2>资料库</h2>
+        <p class="sub">知识地图、来源与管理</p>
+      </div>
+      <button class="icon-btn" id="drawerClose" type="button" title="关闭">×</button>
+    </div>
+
+    <div class="drawer-stats">
+      <div class="metric"><strong id="metricEntries">0</strong><span>知识条目</span></div>
+      <div class="metric"><strong id="metricTopics">0</strong><span>主题</span></div>
+      <div class="metric"><strong id="metricRefs">0</strong><span>来源</span></div>
+    </div>
+
+    <section class="nav-card">
+      <div class="side-title">搜索知识库</div>
+      <div class="search-box">
+        <input id="searchInput" placeholder="ADMET、AlphaFold、RDKit..." />
+        <button class="btn primary" id="searchBtn">检索</button>
+      </div>
+    </section>
+
+    <section class="nav-card">
+      <div class="side-title">知识地图 <span id="totalCount">0 条</span></div>
+      <div class="topic-list" id="topicList"></div>
+    </section>
+
+    <section class="nav-card">
+      <div class="side-title">知识库操作</div>
+      <div class="quick-grid">
+        <button class="btn primary" id="addBtn">新增 Q&A</button>
+        <button class="btn" id="exportBtn">导出 JSON</button>
+        <button class="btn" id="importBtn">导入</button>
+        <button class="btn" id="resetBtn">恢复内置</button>
+      </div>
+      <input id="fileInput" type="file" accept="application/json" hidden />
+    </section>
+
+    <section class="research-card">
+      <div class="rail-title">
+        <h3>高频知识</h3>
+        <span class="tag hot">Hot</span>
+      </div>
+      <div class="knowledge-list" id="featuredList"></div>
+    </section>
+
+    <section class="source-card">
+      <div class="rail-title">
+        <h3>来源</h3>
+        <span class="tag">Links</span>
+      </div>
+      <div class="article-list" id="articleList"></div>
+    </section>
+  </aside>
+
+  <div class="modal" id="modal">
+    <div class="modal-card">
+      <h2>新增知识条目</h2>
+      <p class="sub">把你的论文笔记、实验流程或术语解释整理成可检索的 Q&A。</p>
+      <form id="qaForm" class="form-grid">
+        <label>问题<input id="qaQuestion" required placeholder="例如：什么是多参数优化 MPO？" /></label>
+        <label>分类
+          <select id="qaCategory"></select>
+        </label>
+        <label>关键词，用逗号分隔<input id="qaKeywords" placeholder="MPO, Pareto, QSAR, ADMET" /></label>
+        <label>来源，可选<input id="qaSources" placeholder="PMID:38499823 或论文标题" /></label>
+        <label>答案<textarea id="qaAnswer" required rows="7" placeholder="写一段清晰、可复用的答案"></textarea></label>
+        <div class="modal-actions">
+          <button class="btn" type="button" id="closeModal">取消</button>
+          <button class="btn primary" type="submit">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const sources = [
+      {
+        id: "PMID:38499823",
+        title: "The AI-driven Drug Design platform: multi-parameter optimization with PBPK simulations",
+        url: "https://pubmed.ncbi.nlm.nih.gov/38499823/",
+        tags: ["MPO", "PBPK", "QSAR"]
+      },
+      {
+        id: "PMID:39106790",
+        title: "Generative artificial intelligence for small molecule drug design",
+        url: "https://pubmed.ncbi.nlm.nih.gov/39106790/",
+        tags: ["GenAI", "分子设计"]
+      },
+      {
+        id: "PMID:36415536",
+        title: "Deep learning in drug discovery: an integrative review and future challenges",
+        url: "https://pubmed.ncbi.nlm.nih.gov/36415536/",
+        tags: ["深度学习", "综述"]
+      },
+      {
+        id: "PMID:38830370",
+        title: "Artificial Intelligence in Drug Identification and Validation: A Scoping Review",
+        url: "https://pubmed.ncbi.nlm.nih.gov/38830370/",
+        tags: ["识别", "验证"]
+      },
+      {
+        id: "PMID:37396052",
+        title: "AI in drug discovery and its clinical relevance",
+        url: "https://pubmed.ncbi.nlm.nih.gov/37396052/",
+        tags: ["临床相关性", "NLP"]
+      },
+      {
+        id: "PMID:37047543",
+        title: "Deep learning methodologies in drug discovery with emphasis on in vivo validation",
+        url: "https://pubmed.ncbi.nlm.nih.gov/37047543/",
+        tags: ["体内验证", "深度学习"]
+      },
+      {
+        id: "PMID:37014633",
+        title: "Structure-Based Drug Discovery with Deep Learning",
+        url: "https://pubmed.ncbi.nlm.nih.gov/37014633/",
+        tags: ["SBDD", "结构"]
+      },
+      {
+        id: "PMID:35727311",
+        title: "AI-Based Protein Structure Prediction in Drug Discovery: Impacts and Challenges",
+        url: "https://pubmed.ncbi.nlm.nih.gov/35727311/",
+        tags: ["AlphaFold", "蛋白结构"]
+      },
+      {
+        id: "PMID:38385872",
+        title: "ChemMORT: ADMET optimization using deep learning and multi-objective particle swarm optimization",
+        url: "https://pubmed.ncbi.nlm.nih.gov/38385872/",
+        tags: ["ADMET", "多目标优化"]
+      },
+      {
+        id: "PMID:40047357",
+        title: "Applications of Artificial Intelligence in Drug Repurposing",
+        url: "https://pubmed.ncbi.nlm.nih.gov/40047357/",
+        tags: ["药物重定位", "知识图谱"]
+      },
+      {
+        id: "ChEMBL",
+        title: "ChEMBL: curated bioactivity data for drug discovery",
+        url: "https://www.ebi.ac.uk/chembl/",
+        tags: ["活性数据", "EMBL-EBI"]
+      },
+      {
+        id: "PubChem",
+        title: "PubChem: compound, substance and bioassay database",
+        url: "https://pubchem.ncbi.nlm.nih.gov/",
+        tags: ["化合物库", "BioAssay"]
+      },
+      {
+        id: "OpenTargets",
+        title: "Open Targets Platform: genetics and evidence for target discovery",
+        url: "https://platform.opentargets.org/",
+        tags: ["靶点发现", "遗传证据"]
+      },
+      {
+        id: "UniProt",
+        title: "UniProt: protein sequence and functional information",
+        url: "https://www.uniprot.org/",
+        tags: ["蛋白", "功能注释"]
+      },
+      {
+        id: "PDB",
+        title: "RCSB Protein Data Bank: experimentally determined 3D structures",
+        url: "https://www.rcsb.org/",
+        tags: ["结构", "PDB"]
+      },
+      {
+        id: "AlphaFoldDB",
+        title: "AlphaFold Protein Structure Database",
+        url: "https://alphafold.ebi.ac.uk/",
+        tags: ["结构预测", "AlphaFold"]
+      },
+      {
+        id: "MoleculeNet",
+        title: "MoleculeNet: benchmark datasets for molecular machine learning",
+        url: "https://moleculenet.org/",
+        tags: ["Benchmark", "分子性质"]
+      },
+      {
+        id: "TDC",
+        title: "Therapeutics Data Commons: ML datasets and tasks for therapeutics",
+        url: "https://tdcommons.ai/",
+        tags: ["Benchmark", "药物研发任务"]
+      },
+      {
+        id: "GuacaMol",
+        title: "GuacaMol: benchmarking models for de novo molecular design",
+        url: "https://github.com/BenevolentAI/guacamol",
+        tags: ["分子生成", "Benchmark"]
+      },
+      {
+        id: "RDKit",
+        title: "RDKit: open-source cheminformatics toolkit",
+        url: "https://www.rdkit.org/docs/",
+        tags: ["化学信息学", "工具"]
+      },
+      {
+        id: "DeepChem",
+        title: "DeepChem: deep learning for chemistry and biology",
+        url: "https://deepchem.io/",
+        tags: ["开源工具", "深度学习"]
+      },
+      {
+        id: "AutoDockVina",
+        title: "AutoDock Vina: molecular docking and virtual screening",
+        url: "https://vina.scripps.edu/",
+        tags: ["对接", "虚拟筛选"]
+      },
+      {
+        id: "BindingDB",
+        title: "BindingDB: measured binding affinities for biomolecules and ligands",
+        url: "https://www.bindingdb.org/",
+        tags: ["亲和力", "生物活性"]
+      },
+      {
+        id: "FDA-AI-ML",
+        title: "FDA discussion paper on AI and machine learning in drug development",
+        url: "https://www.fda.gov/science-research/science-and-research-special-topics/artificial-intelligence-and-machine-learning-aiml-drug-development",
+        tags: ["监管", "模型可信度"]
+      },
+      {
+        id: "EMA-AI",
+        title: "EMA reflection paper on the use of AI in the medicinal product lifecycle",
+        url: "https://www.ema.europa.eu/en/artificial-intelligence-workplan-guide-use-ai-medicines-regulation",
+        tags: ["监管", "药品生命周期"]
+      }
+    ];
+
+    const starterKnowledge = [
+      {
+        question: "AIDD 是什么？",
+        category: "基础概念",
+        keywords: ["AIDD", "AI-driven drug discovery", "AI 药物发现", "药物研发"],
+        sources: ["PMID:36415536", "PMID:37396052"],
+        answer: "AIDD 是用人工智能和数据驱动方法辅助药物发现与开发。它覆盖靶点识别、疾病机制理解、虚拟筛选、分子生成、活性预测、ADMET/毒性预测、药物重定位、临床前决策和临床研究优化。正确理解它很重要：AIDD 不是替代湿实验，而是提高假设生成、候选排序和实验资源分配效率。"
+      },
+      {
+        question: "AIDD 的完整研发流程如何搭建？",
+        category: "项目流程",
+        keywords: ["流程", "pipeline", "靶点发现", "候选分子", "闭环"],
+        sources: ["PMID:38830370", "PMID:37396052"],
+        answer: "一个实用流程可以分为七步：定义疾病和靶点假设；整合组学、文献、结构、活性和临床数据；建立数据质量和适用域标准；选择虚拟筛选、生成式设计或重定位策略；用活性、选择性、ADMET、可合成性和新颖性做多维排序；进行体外和体内验证；把实验结果反馈给模型形成主动学习闭环。"
+      },
+      {
+        question: "生成式 AI 如何用于小分子设计？",
+        category: "生成式设计",
+        keywords: ["生成式 AI", "GenAI", "分子生成", "de novo", "扩散模型", "VAE", "GAN", "Transformer"],
+        sources: ["PMID:39106790", "PMID:38663579"],
+        answer: "生成式 AI 可以根据目标性质生成或优化分子结构。常见路线包括 SMILES 语言模型、分子图生成、片段拼接、扩散模型和强化学习优化。它的价值在于探索巨大化学空间，但输出必须经过可合成性、专利空间、ADMET、结构警示、靶点活性和实验验证过滤，不能把“看起来合理”的分子直接当成候选药物。"
+      },
+      {
+        question: "什么是多参数优化 MPO？",
+        category: "项目流程",
+        keywords: ["MPO", "多参数优化", "Pareto", "QSAR", "QSPR", "PBPK"],
+        sources: ["PMID:38499823", "PMID:38385872"],
+        answer: "MPO 是同时优化多个药物相关目标，而不是只追求单一活性分数。典型目标包括效力、选择性、溶解度、渗透性、代谢稳定性、毒性风险、合成可行性和药代暴露。AIDD 平台常结合 QSAR/QSPR、生成式化学、Pareto 优化和 PBPK 模拟，帮助研究者在相互冲突的性质之间找到更平衡的候选分子。"
+      },
+      {
+        question: "QSAR 和深度学习有什么区别？",
+        category: "数据与模型",
+        keywords: ["QSAR", "QSPR", "深度学习", "机器学习", "活性预测"],
+        sources: ["PMID:36415536", "PMID:33844136"],
+        answer: "QSAR/QSPR 关注结构与活性或性质之间的定量关系。传统 QSAR 常使用分子描述符、指纹和较浅模型，解释性较强，适合小到中等数据集。深度学习可直接学习分子图、SMILES、3D 构象或蛋白-配体表示，表达能力更强，但更依赖数据规模、数据质量和严格的外部验证。"
+      },
+      {
+        question: "虚拟筛选应该怎么做才靠谱？",
+        category: "虚拟筛选",
+        keywords: ["虚拟筛选", "分子对接", "相似性搜索", "药效团", "化合物库"],
+        sources: ["PMID:37014633", "PMID:31174387"],
+        answer: "可靠的虚拟筛选通常不是单一打分。建议先定义靶点和口袋，准备高质量蛋白结构和化合物库，做 PAINS/反应性基团/理化性质过滤，再结合相似性搜索、药效团、分子对接、机器学习打分、ADMET 预测和人工结构审查。最后选择多样化候选进入实验，而不是只取对接分最高的前几个。"
+      },
+      {
+        question: "分子对接分数可以代表真实活性吗？",
+        category: "虚拟筛选",
+        keywords: ["Docking", "对接分数", "结合模式", "假阳性"],
+        sources: ["PMID:37014633", "PMID:38173000"],
+        answer: "不能直接代表。对接分数主要用于粗略排序和姿势假设，容易受蛋白构象、质子化状态、水分子、打分函数和配体柔性影响。更合理的做法是检查结合模式是否满足关键相互作用，并结合重打分、分子动力学、已知 SAR、ADMET、可合成性和实验验证做综合判断。"
+      },
+      {
+        question: "AlphaFold 对药物发现有什么帮助和限制？",
+        category: "结构生物学",
+        keywords: ["AlphaFold", "蛋白结构预测", "SBDD", "口袋", "构象"],
+        sources: ["PMID:35727311", "PMID:36621153", "PMID:36907321"],
+        answer: "AlphaFold 等结构预测工具能为缺少实验结构的靶点提供结构假设，帮助靶点分析、口袋识别、突变解释和结构辅助设计。但它通常给出有限构象，对配体诱导契合、动态口袋、变构位点、金属/辅因子、水网络和低置信区域需要谨慎。用于对接前应检查置信度、口袋合理性，并尽量结合实验结构或生物物理数据。"
+      },
+      {
+        question: "什么是 ADMET 预测？",
+        category: "ADMET 与安全性",
+        keywords: ["ADMET", "吸收", "分布", "代谢", "排泄", "毒性", "hERG", "CYP"],
+        sources: ["PMID:38385872", "PMID:36156156"],
+        answer: "ADMET 指吸收、分布、代谢、排泄和毒性。AIDD 中常预测溶解度、膜通透性、血浆蛋白结合、CYP 抑制或代谢、hERG 风险、肝毒性、遗传毒性等。它适合早期风险分层，但模型有适用域限制，尤其对新颖骨架、复杂代谢和体内暴露不能过度自信。"
+      },
+      {
+        question: "PBPK 模型在 AIDD 中有什么用？",
+        category: "ADMET 与安全性",
+        keywords: ["PBPK", "药代动力学", "暴露", "剂量", "ADME"],
+        sources: ["PMID:38499823", "PMID:36156156"],
+        answer: "PBPK 是基于生理结构的药代动力学建模，用组织、血流、吸收、代谢和排泄参数模拟体内暴露。AIDD 中可把分子性质预测与 PBPK 模拟连接起来，帮助早期评估候选分子的口服暴露、清除风险、剂量可行性和物种差异。它比单看 cLogP 或溶解度更接近药物开发决策。"
+      },
+      {
+        question: "药物重定位为什么适合 AI？",
+        category: "药物重定位",
+        keywords: ["drug repurposing", "药物重定位", "知识图谱", "真实世界数据", "NLP"],
+        sources: ["PMID:40047357", "PMID:37396052"],
+        answer: "药物重定位要在药物、靶点、疾病、通路、表型、临床记录和文献之间寻找新关系。AI 可以用知识图谱、NLP、表达谱匹配和多模态学习整合证据，优先推荐已有安全性基础的药物。但重定位仍需机制解释、适应症匹配、剂量合理性、临床终点和真实世界验证。"
+      },
+      {
+        question: "NLP 和大语言模型能帮药物发现做什么？",
+        category: "文献与知识图谱",
+        keywords: ["NLP", "LLM", "文献挖掘", "知识图谱", "ChatGPT"],
+        sources: ["PMID:37396052", "PMID:38409350"],
+        answer: "NLP 和大语言模型可用于文献摘要、实体识别、药物-靶点-疾病关系抽取、专利与临床试验信息整理、药物重定位假设生成和报告草拟。高质量应用通常需要可追溯来源、结构化证据、人工审核和检索增强，避免把模型生成内容当作未经验证的事实。"
+      },
+      {
+        question: "AIDD 项目最常见的数据问题是什么？",
+        category: "数据与模型",
+        keywords: ["数据质量", "数据泄漏", "适用域", "标签噪声", "负样本"],
+        sources: ["PMID:36415536", "PMID:38830370"],
+        answer: "常见问题包括实验单位不统一、IC50/Ki/EC50 混用、重复化合物处理不当、负样本定义模糊、训练集与测试集骨架泄漏、标签噪声、数据偏倚和适用域外预测。AIDD 的上限往往由数据治理决定，而不只是模型结构。"
+      },
+      {
+        question: "如何评估一个活性预测模型？",
+        category: "数据与模型",
+        keywords: ["模型评估", "外部验证", "scaffold split", "ROC-AUC", "PR-AUC", "RMSE"],
+        sources: ["PMID:36415536", "PMID:37047543"],
+        answer: "分类任务可看 ROC-AUC、PR-AUC、召回率、精确率和校准；回归任务可看 RMSE、MAE、R2 和误差分布。药物发现更重视 scaffold split、时间切分、外部测试集、适用域分析和实验命中率。随机切分表现很好并不代表模型能发现新骨架。"
+      },
+      {
+        question: "什么是主动学习闭环？",
+        category: "项目流程",
+        keywords: ["主动学习", "active learning", "闭环", "实验反馈", "贝叶斯优化"],
+        sources: ["PMID:38830370", "PMID:37047543"],
+        answer: "主动学习闭环是模型根据当前不确定性和目标函数选择最值得实验的候选，实验结果再回流更新模型。它适合实验预算有限的场景，可在探索新化学空间和利用已知高分区域之间取得平衡。关键是明确目标函数和实验周期，让计算建议真正影响下一轮实验。"
+      },
+      {
+        question: "体外验证和体内验证分别解决什么问题？",
+        category: "实验验证",
+        keywords: ["体外验证", "体内验证", "in vitro", "in vivo", "药效", "毒性"],
+        sources: ["PMID:37047543"],
+        answer: "体外验证通常确认靶点活性、细胞效应、选择性和初步安全性；体内验证进一步考察暴露、药效、毒性、组织分布和疾病模型相关性。AIDD 可以提高进入验证的候选质量，但不能绕过验证。许多模型命中在体外成立，到了体内会因 PK、毒性或疾病模型差异失败。"
+      },
+      {
+        question: "AIDD 是否能显著缩短药物研发周期？",
+        category: "临床转化",
+        keywords: ["临床转化", "研发周期", "成功率", "风险"],
+        sources: ["PMID:37396052", "PMID:37712494", "PMID:38663579"],
+        answer: "AIDD 有潜力缩短早期发现、候选排序和失败排除时间，但是否显著提高临床成功率仍取决于靶点生物学、疾病模型、数据质量和实验验证。更现实的目标是让团队更早发现风险、减少无效实验、提高候选优先级质量，而不是承诺自动产生临床成功药物。"
+      },
+      {
+        question: "如何避免 AIDD 变成黑箱决策？",
+        category: "风险与治理",
+        keywords: ["可解释性", "XAI", "黑箱", "审计", "模型治理"],
+        sources: ["PMID:38830370", "PMID:37396052"],
+        answer: "可通过证据链、特征贡献、相似已知化合物、适用域提示、反事实分析、模型版本管理和人工复核减少黑箱风险。对药物研发而言，模型给出候选排名还不够，团队需要知道为什么推荐、哪些数据支持、可能错在哪里，以及下一步实验如何验证。"
+      },
+      {
+        question: "AIDD 入门需要学哪些基础？",
+        category: "学习路线",
+        keywords: ["入门", "学习路线", "Python", "化学信息学", "机器学习"],
+        sources: ["PMID:36415536", "PMID:37014633"],
+        answer: "建议按四条线学习：药物化学基础，如靶点、SAR、ADMET；化学信息学，如 SMILES、分子指纹、相似性、RDKit；机器学习基础，如分类、回归、交叉验证、数据泄漏；药物发现流程，如虚拟筛选、分子对接、实验验证和项目决策。先做小型可复现实战项目，比只看模型论文更有效。"
+      },
+      {
+        question: "AIDD 知识库应该如何组织？",
+        category: "文献与知识图谱",
+        keywords: ["知识库", "RAG", "证据", "PMID", "论文管理"],
+        sources: ["PMID:37396052", "PMID:38830370"],
+        answer: "建议把知识库拆成术语、流程、模型、数据集、工具、论文证据、实验 SOP 和项目案例。每条知识最好包含问题、简短答案、关键词、来源 PMID、适用条件和风险提示。后续接入 RAG 时，来源可追溯比单纯回答流畅更重要。"
+      },
+      {
+        question: "AI 分子生成后如何筛选候选？",
+        category: "生成式设计",
+        keywords: ["分子生成", "候选筛选", "可合成性", "新颖性", "多样性"],
+        sources: ["PMID:39106790", "PMID:38199072", "PMID:38385872"],
+        answer: "生成分子后应进行去重、有效性检查、结构警示过滤、药物样性和可合成性评估，再看目标活性、选择性、ADMET、知识产权空间、多样性和新颖性。好的生成式流程不是一次生成一个答案，而是产生可供专家审查的一组高质量候选。"
+      },
+      {
+        question: "图神经网络在 AIDD 中做什么？",
+        category: "数据与模型",
+        keywords: ["GNN", "图神经网络", "分子图", "性质预测", "DTI"],
+        sources: ["PMID:38199072", "PMID:39106790"],
+        answer: "图神经网络把原子视为节点、化学键视为边，学习分子拓扑和局部化学环境。它常用于性质预测、活性预测、药物-靶点相互作用、分子生成和反应预测。优势是结构表达自然，限制是依赖数据质量，且 3D 构象、质子化和实验条件仍可能影响真实结果。"
+      },
+      {
+        question: "结构基础深度学习 SBDD 包括哪些任务？",
+        category: "结构生物学",
+        keywords: ["SBDD", "结构基础药物设计", "蛋白配体", "亲和力预测", "pose"],
+        sources: ["PMID:37014633", "PMID:36842415", "PMID:38173000"],
+        answer: "结构基础深度学习任务包括蛋白口袋识别、蛋白-配体结合姿势生成、亲和力预测、对接重打分、结构条件分子生成和选择性分析。它能补充传统对接，但仍需要处理蛋白柔性、数据集偏倚、构象采样和模型可解释性问题。"
+      },
+      {
+        question: "AIDD 平台落地时团队要分哪些角色？",
+        category: "项目流程",
+        keywords: ["团队", "落地", "药化", "计算", "生物", "项目管理"],
+        sources: ["PMID:38830370", "PMID:37396052"],
+        answer: "一个实用 AIDD 团队通常需要疾病/靶点生物学、药物化学、计算化学、机器学习、DMPK/毒理、实验验证和项目管理协作。模型工程师不应独立定义药物成功标准；药化和生物专家也需要参与目标函数、候选审查和实验优先级。"
+      },
+      {
+        question: "AIDD 结果如何写进论文或项目报告？",
+        category: "文献与知识图谱",
+        keywords: ["论文", "报告", "可复现", "方法", "证据"],
+        sources: ["PMID:37047543", "PMID:38830370"],
+        answer: "报告应说明数据来源、清洗规则、模型方法、训练测试切分、评价指标、适用域、候选筛选流程、失败案例、实验验证和代码/参数可复现性。对 AIDD 项目来说，透明记录负结果和排除理由同样重要，因为它们能减少后续重复试错。"
+      },
+      {
+        question: "AIDD 常用公共数据资源有哪些？",
+        category: "工具与数据资源",
+        keywords: ["公共数据", "ChEMBL", "PubChem", "BindingDB", "PDB", "UniProt", "Open Targets"],
+        sources: ["ChEMBL", "PubChem", "BindingDB", "PDB", "UniProt", "OpenTargets"],
+        answer: "常用资源可以按用途分层：ChEMBL、BindingDB 和 PubChem BioAssay 适合找化合物活性和筛选数据；PubChem Compound 适合查结构和化合物信息；UniProt 适合查蛋白序列、功能和注释；PDB 适合找实验结构；AlphaFold DB 可补充预测结构；Open Targets 适合整合遗传学、疾病和靶点证据。做项目时不要只下载数据，还要记录版本、查询条件、单位和过滤规则。"
+      },
+      {
+        question: "ChEMBL、PubChem 和 BindingDB 有什么区别？",
+        category: "工具与数据资源",
+        keywords: ["ChEMBL", "PubChem", "BindingDB", "活性数据", "IC50", "Ki"],
+        sources: ["ChEMBL", "PubChem", "BindingDB"],
+        answer: "ChEMBL 更偏人工整理的药物发现生物活性数据，适合构建靶点活性模型；PubChem 覆盖范围更广，包含化合物、物质和高通量筛选 BioAssay 数据，但噪声和异质性也更高；BindingDB 聚焦配体与生物大分子的实测结合亲和力，适合做结合活性、亲和力和 DTI 数据整理。建模前要统一单位、实验类型和靶点映射。"
+      },
+      {
+        question: "Open Targets 在靶点发现中怎么用？",
+        category: "靶点发现",
+        keywords: ["Open Targets", "靶点发现", "遗传证据", "GWAS", "疾病关联"],
+        sources: ["OpenTargets", "PMID:38830370"],
+        answer: "Open Targets 可把基因、疾病、遗传变异、表达、通路、动物模型、药物和文献证据联系起来。AIDD 项目中可用它做靶点优先级排序：看遗传学证据强度、疾病相关组织表达、已有药物或化合物、通路合理性、安全性风险和可成药性。AI 模型给出的靶点假设最好用这类证据平台做交叉验证。"
+      },
+      {
+        question: "如何用多组学数据做靶点发现？",
+        category: "靶点发现",
+        keywords: ["多组学", "转录组", "蛋白组", "GWAS", "单细胞", "靶点优先级"],
+        sources: ["OpenTargets", "PMID:38830370"],
+        answer: "多组学靶点发现通常整合 GWAS、转录组、蛋白组、单细胞、表观组和疾病表型数据。核心不是把数据简单拼起来，而是回答三个问题：这个靶点是否与疾病因果相关，是否在相关组织或细胞类型中表达，干预它是否可能产生可测药效且安全。AI 可用于特征融合、网络传播和候选排序，但生物学解释必须跟上。"
+      },
+      {
+        question: "什么是可成药性评估？",
+        category: "靶点发现",
+        keywords: ["可成药性", "druggability", "靶点", "口袋", "安全性"],
+        sources: ["OpenTargets", "PDB", "AlphaFoldDB"],
+        answer: "可成药性评估关注一个靶点是否能被药物有效、安全地调控。小分子靶点要看是否有稳定结合口袋、结构信息、已知配体、选择性窗口和关键残基；抗体或蛋白药靶点要看细胞外暴露、组织分布和安全性。AIDD 可以辅助预测口袋、配体相互作用和靶点网络风险，但最终需要实验和疾病生物学证据。"
+      },
+      {
+        question: "MoleculeNet 和 TDC 适合用来做什么？",
+        category: "Benchmark 与评估",
+        keywords: ["MoleculeNet", "TDC", "benchmark", "数据集", "模型评估"],
+        sources: ["MoleculeNet", "TDC"],
+        answer: "MoleculeNet 是分子机器学习常用 benchmark，覆盖量子性质、物理化学性质、生物活性和毒性等任务；TDC 更面向治疗研发，提供 ADMET、药物-靶点相互作用、药物组合、抗体、药物重定位等任务集合。它们适合做模型练习和方法比较，但项目落地仍要用目标疾病和靶点相关的真实数据做外部验证。"
+      },
+      {
+        question: "为什么 benchmark 高分不等于项目成功？",
+        category: "Benchmark 与评估",
+        keywords: ["benchmark", "外推", "数据泄漏", "leaderboard", "泛化"],
+        sources: ["MoleculeNet", "TDC", "PMID:36415536"],
+        answer: "Benchmark 往往是固定数据集和固定指标，容易被模型结构、数据切分和调参策略优化到很高分。但真实项目要求模型外推到新骨架、新靶点、新实验条件和不同数据分布。AIDD 中更重要的是外部测试、时间切分、scaffold split、实验命中率和决策影响，而不是单一 leaderboard 排名。"
+      },
+      {
+        question: "GuacaMol 这类分子生成 benchmark 怎么理解？",
+        category: "Benchmark 与评估",
+        keywords: ["GuacaMol", "分子生成", "有效性", "新颖性", "多样性", "目标优化"],
+        sources: ["GuacaMol", "PMID:39106790"],
+        answer: "GuacaMol 这类 benchmark 用来评估分子生成模型的有效性、新颖性、多样性、分布学习和目标性质优化能力。它能帮助比较生成模型，但不能证明生成分子一定可合成、可成药或有真实活性。实际项目还要加入合成路线、专利空间、靶点结合、ADMET 和实验验证。"
+      },
+      {
+        question: "RDKit 在 AIDD 中能做什么？",
+        category: "工具与数据资源",
+        keywords: ["RDKit", "SMILES", "分子指纹", "描述符", "化学信息学"],
+        sources: ["RDKit"],
+        answer: "RDKit 是 AIDD 入门和项目原型最常用的化学信息学工具之一。它可以处理 SMILES、标准化分子、计算描述符和分子指纹、做相似性搜索、子结构匹配、构象生成、分子绘图和基础过滤。很多机器学习模型的数据预处理、可视化和规则过滤都会用到 RDKit。"
+      },
+      {
+        question: "DeepChem 适合代码小白学习 AIDD 吗？",
+        category: "工具与数据资源",
+        keywords: ["DeepChem", "入门", "深度学习", "教程", "分子机器学习"],
+        sources: ["DeepChem", "MoleculeNet"],
+        answer: "DeepChem 适合用来了解分子机器学习的常见任务和模型，例如分子性质预测、图神经网络、数据加载、MoleculeNet benchmark 和模型评估。对代码小白来说，建议先把任务跑通，再理解数据切分、特征表示和指标含义。不要一开始就追复杂模型，先学会避免数据泄漏和错误解释。"
+      },
+      {
+        question: "AutoDock Vina 在虚拟筛选中怎么定位？",
+        category: "工具与数据资源",
+        keywords: ["AutoDock Vina", "Vina", "分子对接", "虚拟筛选", "打分函数"],
+        sources: ["AutoDockVina", "PMID:37014633"],
+        answer: "AutoDock Vina 是常用的开源分子对接工具，可用于生成配体结合姿势和粗略打分。它适合教学、原型和早期筛选，但对蛋白构象、质子化、网格设置、配体构象和打分函数都敏感。真实项目中应结合结构审查、重打分、已知阳性对照和实验验证。"
+      },
+      {
+        question: "PDB 和 AlphaFold DB 应该怎么搭配使用？",
+        category: "结构生物学",
+        keywords: ["PDB", "AlphaFold DB", "实验结构", "预测结构", "对接"],
+        sources: ["PDB", "AlphaFoldDB", "PMID:35727311"],
+        answer: "PDB 提供实验解析结构，通常优先级高，尤其是含配体、辅因子或相关构象的结构。AlphaFold DB 提供大规模预测结构，适合没有实验结构时补充靶点结构假设。搭配使用时建议优先找同源实验结构、检查 AlphaFold 置信度和低置信区域，再判断口袋是否适合对接或结构设计。"
+      },
+      {
+        question: "蛋白语言模型在 AIDD 中有什么用？",
+        category: "结构生物学",
+        keywords: ["蛋白语言模型", "protein language model", "ESM", "序列", "突变", "功能预测"],
+        sources: ["UniProt", "AlphaFoldDB"],
+        answer: "蛋白语言模型通过大量蛋白序列学习氨基酸模式，可用于蛋白表示学习、功能预测、突变效应评估、远缘同源关系发现、抗体或酶工程候选生成等。它补充结构模型，但不能替代实验功能验证。用于靶点发现时，应结合 UniProt 注释、结构、组织表达和疾病证据。"
+      },
+      {
+        question: "药物-靶点相互作用 DTI 预测是什么？",
+        category: "数据与模型",
+        keywords: ["DTI", "drug-target interaction", "药物靶点相互作用", "亲和力预测"],
+        sources: ["BindingDB", "ChEMBL", "TDC"],
+        answer: "DTI 预测试图判断一个分子是否可能与某个靶点相互作用，或预测结合亲和力。常见输入包括分子图、SMILES、蛋白序列、结构口袋和已知相互作用网络。DTI 适合候选排序和重定位假设，但容易受数据偏差影响，例如热门靶点和热门化合物被过度表示，因此需要外部验证和机制解释。"
+      },
+      {
+        question: "什么是负样本，为什么 AIDD 中很难定义？",
+        category: "数据与模型",
+        keywords: ["负样本", "inactive", "unknown", "分类模型", "数据偏差"],
+        sources: ["ChEMBL", "PubChem", "PMID:36415536"],
+        answer: "负样本是模型学习“无活性”或“不相互作用”的例子。但在药物发现中，未报道活性不等于真实无活性，未测试分子也不能直接当负样本。错误负样本会误导模型。更稳妥做法是使用明确 inactive 实验标签，记录 assay 条件，并区分 unknown、not tested 和 measured inactive。"
+      },
+      {
+        question: "什么是 scaffold split？",
+        category: "Benchmark 与评估",
+        keywords: ["scaffold split", "Murcko scaffold", "骨架切分", "泛化"],
+        sources: ["RDKit", "MoleculeNet"],
+        answer: "Scaffold split 是按分子核心骨架划分训练集和测试集，让测试集包含模型没见过的化学骨架。它比随机切分更接近药物发现中的新骨架外推场景。很多随机切分下表现很好的模型，在 scaffold split 下会明显下降，这能暴露模型是否只是记住相似化合物。"
+      },
+      {
+        question: "什么是适用域，AIDD 模型为什么必须提示适用域？",
+        category: "风险与治理",
+        keywords: ["适用域", "domain of applicability", "不确定性", "外推"],
+        sources: ["PMID:36415536", "TDC"],
+        answer: "适用域指模型可以相对可靠预测的数据范围，例如相似化学空间、实验类型、靶点类别和性质区间。新骨架、特殊元素、超大分子、罕见靶点或不同实验体系可能超出适用域。AIDD 工具应提示不确定性和适用域外风险，否则容易把漂亮分数误用为可靠决策。"
+      },
+      {
+        question: "不确定性估计在 AIDD 中有什么价值？",
+        category: "数据与模型",
+        keywords: ["不确定性", "uncertainty", "主动学习", "置信度", "ensemble"],
+        sources: ["PMID:37047543", "TDC"],
+        answer: "不确定性估计可以告诉团队模型对哪些候选更没把握。它在主动学习、实验优先级和风险沟通中很有价值：高预测值且低不确定性的候选适合快速推进，高预测值但高不确定性的候选适合探索验证，低预测值但结构新颖的候选可作为探索样本。常用方法包括模型集成、贝叶斯近似和校准分析。"
+      },
+      {
+        question: "AIDD 中如何处理专利和可合成性？",
+        category: "生成式设计",
+        keywords: ["专利", "可合成性", "SA score", "逆合成", "IP", "分子生成"],
+        sources: ["GuacaMol", "RDKit", "PMID:39106790"],
+        answer: "生成或筛选分子时要同步考虑专利空间和可合成性。常见做法包括计算合成可及性评分、检查结构警示、做逆合成路线评估、比较已知相似分子和专利相似结构，并由药化专家审查。AIDD 模型如果只优化活性，很容易生成不可合成、侵权风险高或药物性质差的分子。"
+      },
+      {
+        question: "分子表示方式有哪些，怎么选？",
+        category: "数据与模型",
+        keywords: ["SMILES", "分子指纹", "图表示", "3D 构象", "描述符"],
+        sources: ["RDKit", "DeepChem", "PMID:36415536"],
+        answer: "常见表示包括描述符、分子指纹、SMILES、SELFIES、分子图和 3D 构象。小数据和解释性需求高时，描述符与指纹很实用；需要学习复杂结构模式时，可用图神经网络；涉及构象、口袋和立体相互作用时，需要 3D 表示。表示方式应由任务、数据量和实验问题决定，而不是盲目追最新模型。"
+      },
+      {
+        question: "SELFIES 相比 SMILES 有什么优势？",
+        category: "生成式设计",
+        keywords: ["SELFIES", "SMILES", "分子生成", "有效分子", "表示学习"],
+        sources: ["PMID:39106790", "GuacaMol"],
+        answer: "SMILES 简洁通用，但生成模型容易输出无效字符串。SELFIES 的设计目标是让任意有效 token 序列都能映射为有效分子，因此在生成式设计中可减少无效分子比例。不过有效不等于好分子，仍要评估化学合理性、可合成性、目标活性和 ADMET。"
+      },
+      {
+        question: "AIDD 里知识图谱能解决什么问题？",
+        category: "文献与知识图谱",
+        keywords: ["知识图谱", "drug repurposing", "靶点发现", "多跳推理", "证据链"],
+        sources: ["OpenTargets", "PMID:40047357", "PMID:37396052"],
+        answer: "知识图谱把药物、靶点、疾病、通路、基因、表型、文献和临床证据连接成网络，适合药物重定位、靶点发现、机制解释和证据追踪。它的优势是可解释和可追溯；风险是边的质量参差不齐、关系方向和因果性不清，需要证据分级和人工复核。"
+      },
+      {
+        question: "RAG 问答系统如何服务 AIDD？",
+        category: "文献与知识图谱",
+        keywords: ["RAG", "检索增强生成", "论文", "知识库", "引用"],
+        sources: ["PMID:37396052", "FDA-AI-ML"],
+        answer: "RAG 可以把论文、SOP、项目报告、实验记录和数据库说明接入大语言模型，让回答附带来源并限制幻觉。AIDD 中适合用于文献速查、靶点证据整理、实验方案问答和项目知识管理。关键是做好文档切分、向量检索、来源引用、权限控制和人工审核，不能让模型把无来源内容当事实。"
+      },
+      {
+        question: "AIDD 项目如何设计最小可行原型？",
+        category: "项目流程",
+        keywords: ["MVP", "原型", "小白", "项目落地", "最小可行"],
+        sources: ["RDKit", "ChEMBL", "DeepChem"],
+        answer: "最小可行原型可以从一个靶点开始：从 ChEMBL 或 BindingDB 整理活性数据，用 RDKit 生成分子指纹，训练一个简单分类或回归模型，用 scaffold split 评估，再把候选分子按活性、相似性、ADMET 规则和可合成性排序。先跑通闭环，再逐步加入对接、生成式模型和实验反馈。"
+      },
+      {
+        question: "AIDD 平台后台应该有哪些模块？",
+        category: "项目流程",
+        keywords: ["平台", "后台", "数据管理", "模型管理", "审计", "MLOps"],
+        sources: ["FDA-AI-ML", "EMA-AI"],
+        answer: "AIDD 平台后台至少应包含数据集管理、分子库管理、模型版本管理、任务记录、候选分子看板、来源引用、权限管理、实验反馈和审计日志。对研发团队来说，能追踪“哪个模型、用什么数据、在什么条件下推荐了哪个候选”非常重要，这也是后续质量管理和监管沟通的基础。"
+      },
+      {
+        question: "FDA 和 EMA 对 AI 药物研发关注什么？",
+        category: "监管与质量",
+        keywords: ["FDA", "EMA", "监管", "AI", "模型可信度", "药品生命周期"],
+        sources: ["FDA-AI-ML", "EMA-AI"],
+        answer: "监管机构关注 AI/ML 在药物生命周期中的模型可信度、数据质量、透明性、可解释性、偏倚控制、验证、变更管理和责任边界。早期发现工具未必直接作为注册证据，但如果影响关键决策，也应记录数据来源、模型版本、适用范围、验证结果和人工审核过程。"
+      },
+      {
+        question: "AIDD 中什么叫模型可信度？",
+        category: "监管与质量",
+        keywords: ["模型可信度", "credibility", "验证", "质量管理", "审计"],
+        sources: ["FDA-AI-ML", "EMA-AI"],
+        answer: "模型可信度不是模型分数高，而是能证明模型适合特定用途。它包括明确的使用场景、可靠数据、合理建模方法、充分验证、适用域说明、不确定性提示、版本可追踪、错误案例分析和人工监督。用途越关键，可信度证据要求越高。"
+      },
+      {
+        question: "AIDD 项目怎样避免数据泄漏？",
+        category: "风险与治理",
+        keywords: ["数据泄漏", "leakage", "scaffold split", "时间切分", "重复化合物"],
+        sources: ["MoleculeNet", "TDC", "PMID:36415536"],
+        answer: "避免数据泄漏要从数据整理开始：去除重复或高度相似样本泄漏，按骨架或时间切分而非只随机切分，确保同一化合物、同一 assay 或近似系列不会同时出现在训练和测试中；特征工程不能使用未来信息；模型选择和调参也不能偷看测试集。泄漏会让模型看似强大、实际外推失败。"
+      },
+      {
+        question: "AI 如何辅助抗体和蛋白药设计？",
+        category: "生物大分子设计",
+        keywords: ["抗体", "蛋白药", "蛋白设计", "亲和力", "免疫原性"],
+        sources: ["UniProt", "AlphaFoldDB", "TDC"],
+        answer: "AI 可用于抗体序列生成、CDR 优化、亲和力预测、可开发性评估、结构建模、免疫原性风险预测和蛋白稳定性优化。与小分子不同，抗体和蛋白药更关注结构稳定性、表达、聚集、免疫原性、组织分布和生产工艺，因此需要生物大分子专门的评价体系。"
+      },
+      {
+        question: "AI 如何用于反应预测和逆合成？",
+        category: "生成式设计",
+        keywords: ["反应预测", "逆合成", "合成路线", "retrosynthesis", "可合成性"],
+        sources: ["RDKit", "PMID:39106790"],
+        answer: "反应预测模型判断给定反应物可能生成什么产物，逆合成模型从目标分子反推出可能的合成路线。AIDD 中它们用于过滤不可合成分子、比较路线复杂度和支持药化设计。需要注意，模型建议路线还要考虑试剂可得性、收率、选择性、安全性和实验室条件。"
+      },
+      {
+        question: "AIDD 里哪些任务适合用大语言模型，哪些不适合？",
+        category: "文献与知识图谱",
+        keywords: ["LLM", "大语言模型", "适用场景", "幻觉", "RAG"],
+        sources: ["PMID:37396052", "FDA-AI-ML"],
+        answer: "大语言模型适合文献总结、知识库问答、实体关系抽取、代码辅助、报告草稿和假设生成；不适合在无工具、无验证的情况下直接给出真实活性、临床成功概率或最终候选药物结论。AIDD 中使用 LLM 的基本原则是：可检索、可引用、可审查、可复现。"
+      },
+      {
+        question: "临床数据和真实世界数据能用于 AIDD 吗？",
+        category: "临床转化",
+        keywords: ["临床数据", "真实世界数据", "EHR", "RWD", "药物重定位"],
+        sources: ["PMID:37396052", "PMID:40047357", "FDA-AI-ML"],
+        answer: "临床数据和真实世界数据可用于药物重定位、患者分型、安全信号发现、疗效预测和临床试验优化。但这类数据存在混杂、缺失、编码差异、隐私和因果推断问题。AI 结果必须结合临床专家解释，并通过严谨统计设计或前瞻性验证。"
+      },
+      {
+        question: "AIDD 如何支持临床试验设计？",
+        category: "临床转化",
+        keywords: ["临床试验", "患者分层", "入组", "终点", "生物标志物"],
+        sources: ["PMID:37396052", "FDA-AI-ML"],
+        answer: "AI 可辅助患者分层、入排标准优化、终点选择、生物标志物发现、风险预测和试验站点选择。它的价值在于提高人群匹配和试验效率，但不能绕过临床试验质量要求。模型必须说明训练数据、适用人群、偏倚风险和验证证据。"
+      },
+      {
+        question: "AIDD 做疾病机制研究时应注意什么？",
+        category: "靶点发现",
+        keywords: ["疾病机制", "因果", "通路", "网络药理", "机制解释"],
+        sources: ["OpenTargets", "PMID:38830370"],
+        answer: "疾病机制研究要区分相关性和因果性。AI 可从组学、文献和网络中找到候选通路或靶点，但后续要用遗传证据、扰动实验、细胞类型特异性、动物模型和临床关联验证。机制解释越强，项目越容易设计合适的药效实验和转化路径。"
+      },
+      {
+        question: "如何给 AIDD 候选分子做优先级排序？",
+        category: "项目流程",
+        keywords: ["候选排序", "评分矩阵", "MPO", "药化审查", "go no-go"],
+        sources: ["PMID:38499823", "RDKit", "PMID:38385872"],
+        answer: "建议建立评分矩阵，而不是只看模型预测活性。维度可包括目标活性、选择性、结构新颖性、系列多样性、ADMET 风险、可合成性、专利风险、对接结合模式、模型不确定性和实验可测性。最终排序应由计算结果和药化/生物专家共同审查，形成 go/no-go 理由。"
+      },
+      {
+        question: "AIDD 适合新手做的第一个项目是什么？",
+        category: "学习路线",
+        keywords: ["新手项目", "入门项目", "ChEMBL", "RDKit", "QSAR"],
+        sources: ["ChEMBL", "RDKit", "MoleculeNet"],
+        answer: "推荐做一个单靶点 QSAR 小项目：选择一个数据较多的靶点，从 ChEMBL 整理 IC50 或 Ki 数据，统一单位并二分类或回归，使用 RDKit 计算 Morgan 指纹，训练 Random Forest 或简单神经网络，用 scaffold split 评估，再解释最相似分子和错误案例。这个项目能学到数据清洗、建模、评估和药化解释。"
+      },
+      {
+        question: "AIDD 知识库下一步怎样升级成真正智能问答？",
+        category: "项目流程",
+        keywords: ["RAG", "OpenAI API", "向量数据库", "PDF", "知识库升级"],
+        sources: ["PMID:37396052", "FDA-AI-ML"],
+        answer: "下一步可以把当前静态 Q&A 升级成 RAG：把论文 PDF、笔记、数据库说明和项目文档切分成片段，生成向量索引，用户提问时先检索相关片段，再让大语言模型基于片段回答并给出来源。核心模块包括文档上传、向量检索、引用显示、权限控制、反馈纠错和知识库版本管理。"
+      }
+    ];
+
+    const storageKey = "aidd-chatbot-knowledge-v3";
+    let knowledge = loadKnowledge();
+    let activeCategory = "全部";
+    let mode = "answer";
+
+    const chat = document.getElementById("chat");
+    const topicList = document.getElementById("topicList");
+    const totalCount = document.getElementById("totalCount");
+    const questionInput = document.getElementById("questionInput");
+    const searchInput = document.getElementById("searchInput");
+    const modal = document.getElementById("modal");
+    const categorySelect = document.getElementById("qaCategory");
+
+    function loadKnowledge() {
+      const saved = localStorage.getItem(storageKey);
+      if (!saved) return starterKnowledge;
+      try {
+        const parsed = JSON.parse(saved);
+        return Array.isArray(parsed) && parsed.length ? parsed : starterKnowledge;
+      } catch {
+        return starterKnowledge;
+      }
+    }
+
+    function saveKnowledge() {
+      localStorage.setItem(storageKey, JSON.stringify(knowledge, null, 2));
+    }
+
+    function categories() {
+      return [...new Set(knowledge.map((item) => item.category))].sort();
+    }
+
+    function normalize(text) {
+      return String(text || "").toLowerCase().replace(/[，。！？、；：,.!?;:()（）/\\-]/g, " ");
+    }
+
+    function scoreItem(item, query) {
+      const q = normalize(query);
+      const words = q.split(/\s+/).filter(Boolean);
+      const haystack = normalize([item.question, item.category, item.answer, (item.keywords || []).join(" "), (item.sources || []).join(" ")].join(" "));
+      let score = 0;
+      if (!q) return 0;
+      if (normalize(item.question).includes(q)) score += 15;
+      if (haystack.includes(q)) score += 8;
+      for (const word of words) {
+        if (normalize(item.question).includes(word)) score += 5;
+        if ((item.keywords || []).some((kw) => normalize(kw).includes(word))) score += 4;
+        if (normalize(item.category).includes(word)) score += 3;
+        if (normalize(item.answer).includes(word)) score += 1;
+      }
+      for (const kw of item.keywords || []) {
+        if (q.includes(normalize(kw))) score += 5;
+      }
+      return score;
+    }
+
+    function findBest(query) {
+      return knowledge
+        .map((item) => ({ item, score: scoreItem(item, query) }))
+        .sort((a, b) => b.score - a.score);
+    }
+
+    function sourceText(ids) {
+      const list = (ids || []).map((id) => sources.find((source) => source.id === id)).filter(Boolean);
+      if (!list.length) return "";
+      return list.map((source) => `<a href="${source.url}" target="_blank" rel="noreferrer">${escapeHtml(source.id)}</a>`).join(" · ");
+    }
+
+    function addMessage(role, html) {
+      const node = document.createElement("article");
+      node.className = `msg ${role}`;
+      node.innerHTML = html;
+      chat.appendChild(node);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function ask(question) {
+      const trimmed = question.trim();
+      if (!trimmed) return;
+      addMessage("user", escapeHtml(trimmed));
+
+      if (mode === "learn") {
+        addLearningPath(trimmed);
+        return;
+      }
+
+      if (mode === "risk") {
+        addRiskChecklist(trimmed);
+        return;
+      }
+
+      const matches = findBest(trimmed);
+      const best = matches[0];
+      if (!best || best.score <= 0) {
+        addMessage("bot", `
+          <strong>还没有匹配到足够明确的知识。</strong>
+          可以换个关键词，或把这个问题作为新 Q&A 加入知识库。
+          ${renderSuggestions(knowledge.slice(0, 6))}
+        `);
+        wireSuggestionButtons();
+        return;
+      }
+
+      const related = matches.slice(1, 5).filter((row) => row.score > 0).map((row) => row.item);
+      const refs = sourceText(best.item.sources);
+      addMessage("bot", `
+        <div class="answer-grid">
+          <strong>${escapeHtml(best.item.question)}</strong>
+          <div>${escapeHtml(best.item.answer)}</div>
+          <div class="tag-row">
+            <span class="tag">${escapeHtml(best.item.category)}</span>
+            <span class="tag warn">匹配度 ${Math.min(98, 54 + best.score * 4)}%</span>
+          </div>
+          ${refs ? `<div class="source-line">来源：${refs}</div>` : ""}
+          ${related.length ? renderSuggestions(related) : ""}
+        </div>
+      `);
+      wireSuggestionButtons();
+    }
+
+    function addLearningPath(topic) {
+      const picks = ["AIDD 是什么？", "AIDD 入门需要学哪些基础？", "AIDD 的完整研发流程如何搭建？", "虚拟筛选应该怎么做才靠谱？", "什么是 ADMET 预测？", "如何评估一个活性预测模型？"];
+      addMessage("bot", `
+        <strong>围绕“${escapeHtml(topic)}”的学习路线</strong>
+        先建立药物发现全流程，再学数据和模型，最后学习验证与风险治理。建议按下面条目逐个问：
+        ${renderSuggestions(picks.map((q) => knowledge.find((item) => item.question === q)).filter(Boolean))}
+      `);
+      wireSuggestionButtons();
+    }
+
+    function addRiskChecklist(topic) {
+      addMessage("bot", `
+        <strong>“${escapeHtml(topic)}”的 AIDD 风险检查</strong>
+        1. 数据是否有单位混用、重复结构、标签噪声和 scaffold 泄漏？<br>
+        2. 模型是否做了外部验证、适用域分析和负样本检查？<br>
+        3. 候选是否同时评估活性、选择性、ADMET、可合成性和新颖性？<br>
+        4. 结构预测或对接结果是否经过口袋、构象和关键相互作用人工审查？<br>
+        5. 是否设计了体外、体内或真实世界数据验证路径？
+        ${renderSuggestions(["AIDD 项目最常见的数据问题是什么？", "如何避免 AIDD 变成黑箱决策？", "体外验证和体内验证分别解决什么问题？"].map((q) => knowledge.find((item) => item.question === q)).filter(Boolean))}
+      `);
+      wireSuggestionButtons();
+    }
+
+    function renderSuggestions(items) {
+      return `<div class="suggestions">${items.map((item) => `<button class="chip" data-question="${escapeAttr(item.question)}">${escapeHtml(item.question)}</button>`).join("")}</div>`;
+    }
+
+    function renderTopics() {
+      const counts = knowledge.reduce((map, item) => {
+        map[item.category] = (map[item.category] || 0) + 1;
+        return map;
+      }, {});
+      const topics = [["全部", knowledge.length], ...Object.entries(counts).sort()];
+      totalCount.textContent = `${knowledge.length} 条`;
+      topicList.innerHTML = topics.map(([name, count]) => `
+        <button class="topic ${name === activeCategory ? "active" : ""}" data-topic="${escapeAttr(name)}">
+          <span>${escapeHtml(name)}</span><span class="count">${count}</span>
+        </button>
+      `).join("");
+      document.querySelectorAll(".topic").forEach((button) => {
+        button.addEventListener("click", () => {
+          activeCategory = button.dataset.topic;
+          renderTopics();
+          showCategory(activeCategory);
+        });
+      });
+      renderCategorySelect();
+      renderMetrics();
+    }
+
+    function renderCategorySelect() {
+      categorySelect.innerHTML = categories().map((category) => `<option>${escapeHtml(category)}</option>`).join("");
+    }
+
+    function renderMetrics() {
+      document.getElementById("metricEntries").textContent = knowledge.length;
+      document.getElementById("metricTopics").textContent = categories().length;
+      document.getElementById("metricRefs").textContent = sources.length;
+    }
+
+    function renderFeatured() {
+      const featured = ["AIDD 常用公共数据资源有哪些？", "AIDD 适合新手做的第一个项目是什么？", "FDA 和 EMA 对 AI 药物研发关注什么？", "Open Targets 在靶点发现中怎么用？", "AIDD 知识库下一步怎样升级成真正智能问答？", "生成式 AI 如何用于小分子设计？"]
+        .map((q) => knowledge.find((item) => item.question === q))
+        .filter(Boolean);
+      document.getElementById("featuredList").innerHTML = featured.map((item) => `
+        <div class="knowledge-item" data-question="${escapeAttr(item.question)}">
+          <strong>${escapeHtml(item.question)}</strong>
+          <span>${escapeHtml(item.category)} · ${(item.sources || []).slice(0, 2).join(" ")}</span>
+        </div>
+      `).join("");
+      document.querySelectorAll(".knowledge-item").forEach((node) => {
+        node.addEventListener("click", () => ask(node.dataset.question));
+      });
+    }
+
+    function renderArticles() {
+      document.getElementById("articleList").innerHTML = sources.map((source) => `
+        <div class="article">
+          <a href="${source.url}" target="_blank" rel="noreferrer">${escapeHtml(source.title)}</a>
+          <div class="tag-row">
+            <span class="tag">${escapeHtml(source.id)}</span>
+            ${source.tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function showCategory(category) {
+      const items = category === "全部" ? knowledge : knowledge.filter((item) => item.category === category);
+      addMessage("bot", `
+        <strong>${escapeHtml(category)} · ${items.length} 条知识</strong>
+        ${renderSuggestions(items)}
+      `);
+      wireSuggestionButtons();
+    }
+
+    function performSearch() {
+      const query = searchInput.value.trim();
+      if (!query) return;
+      const results = findBest(query).filter((row) => row.score > 0).slice(0, 8).map((row) => row.item);
+      chat.innerHTML = "";
+      addMessage("bot", `
+        <strong>检索结果：${escapeHtml(query)}</strong>
+        ${results.length ? renderSuggestions(results) : "没有找到相关条目，可以新增 Q&A 补充。"}
+      `);
+      wireSuggestionButtons();
+    }
+
+    function wireSuggestionButtons() {
+      document.querySelectorAll(".chip").forEach((button) => {
+        button.onclick = () => ask(button.dataset.question);
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      })[char]);
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, "&#096;");
+    }
+
+    document.getElementById("chatForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      ask(questionInput.value);
+      questionInput.value = "";
+    });
+
+    document.getElementById("searchBtn").addEventListener("click", performSearch);
+    searchInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") performSearch();
+    });
+
+    document.querySelectorAll(".tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        mode = tab.dataset.mode;
+        document.querySelectorAll(".tab").forEach((node) => node.classList.toggle("active", node === tab));
+      });
+    });
+
+    const drawerBtn = document.getElementById("drawerBtn");
+    const drawerClose = document.getElementById("drawerClose");
+    const drawerScrim = document.getElementById("drawerScrim");
+    const closeDrawer = () => document.body.classList.remove("drawer-open");
+    drawerBtn.addEventListener("click", () => document.body.classList.add("drawer-open"));
+    drawerClose.addEventListener("click", closeDrawer);
+    drawerScrim.addEventListener("click", closeDrawer);
+
+    document.getElementById("addBtn").addEventListener("click", () => modal.classList.add("open"));
+    document.getElementById("closeModal").addEventListener("click", () => modal.classList.remove("open"));
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) modal.classList.remove("open");
+    });
+
+    document.getElementById("qaForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      knowledge.unshift({
+        question: document.getElementById("qaQuestion").value.trim(),
+        category: document.getElementById("qaCategory").value,
+        keywords: document.getElementById("qaKeywords").value.split(",").map((item) => item.trim()).filter(Boolean),
+        sources: document.getElementById("qaSources").value.split(",").map((item) => item.trim()).filter(Boolean),
+        answer: document.getElementById("qaAnswer").value.trim()
+      });
+      saveKnowledge();
+      renderTopics();
+      renderFeatured();
+      event.target.reset();
+      modal.classList.remove("open");
+      addMessage("bot", "<strong>已保存新知识条目。</strong>它已经进入本地知识库，可以被搜索和问答匹配。");
+    });
+
+    document.getElementById("exportBtn").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(knowledge, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "aidd-knowledge-base.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById("importBtn").addEventListener("click", () => document.getElementById("fileInput").click());
+    document.getElementById("fileInput").addEventListener("change", async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const imported = JSON.parse(await file.text());
+        if (!Array.isArray(imported)) throw new Error("知识库必须是数组");
+        knowledge = imported.filter((item) => item.question && item.answer).map((item) => ({
+          question: String(item.question),
+          answer: String(item.answer),
+          category: String(item.category || "未分类"),
+          keywords: Array.isArray(item.keywords) ? item.keywords.map(String) : [],
+          sources: Array.isArray(item.sources) ? item.sources.map(String) : []
+        }));
+        saveKnowledge();
+        renderTopics();
+        renderFeatured();
+        addMessage("bot", `<strong>导入完成。</strong>当前知识库共有 ${knowledge.length} 条。`);
+      } catch (error) {
+        addMessage("bot", `<strong>导入失败。</strong>${escapeHtml(error.message)}`);
+      }
+      event.target.value = "";
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      knowledge = starterKnowledge;
+      saveKnowledge();
+      renderTopics();
+      renderFeatured();
+      chat.innerHTML = "";
+      boot();
+    });
+
+    function boot() {
+      addMessage("bot", `
+        <strong>你好，我是 AIDD Knowledge Copilot。</strong>
+        直接问我 AIDD、靶点发现、虚拟筛选、生成式分子设计、ADMET、AlphaFold、实验验证或项目落地问题。
+        ${renderSuggestions(["AIDD 常用公共数据资源有哪些？", "AIDD 适合新手做的第一个项目是什么？", "Open Targets 在靶点发现中怎么用？", "FDA 和 EMA 对 AI 药物研发关注什么？", "AIDD 知识库下一步怎样升级成真正智能问答？", "生成式 AI 如何用于小分子设计？"].map((q) => knowledge.find((item) => item.question === q)).filter(Boolean))}
+      `);
+      wireSuggestionButtons();
+    }
+
+    renderTopics();
+    renderFeatured();
+    renderArticles();
+    boot();
+  </script>
+</body>
+</html>
